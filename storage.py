@@ -1,24 +1,30 @@
 import json
-from pathlib import Path
+import os
 
-DATA_DIR = Path("data")
-DATA_DIR.mkdir(exist_ok=True)
+EVENTS_FILE = "data/events.json"
+NOTES_FILE = "data/notes.json"
 
-EVENTS_FILE = DATA_DIR / "events.json"
-NOTES_FILE = DATA_DIR / "notes.json"
+os.makedirs("data", exist_ok=True)
 
 def load_events():
-    if EVENTS_FILE.exists():
-        return json.loads(EVENTS_FILE.read_text(encoding="utf-8"))
-    return []
+    try:
+        with open(EVENTS_FILE, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except:
+        return []
 
 def save_events(events):
-    EVENTS_FILE.write_text(json.dumps(events, ensure_ascii=False, indent=2), encoding="utf-8")
+    with open(EVENTS_FILE, "w", encoding="utf-8") as f:
+        json.dump(events, f, ensure_ascii=False, indent=2)
 
 def load_notes():
-    if NOTES_FILE.exists():
-        return json.loads(NOTES_FILE.read_text(encoding="utf-8"))
-    return []
+    try:
+        with open(NOTES_FILE, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except:
+        return []
 
 def save_notes(notes):
-    NOTES_FILE.write_text(json.dumps(notes, ensure_ascii=False, indent=2), encoding="utf-8")
+    with open(NOTES_FILE, "w", encoding="utf-8") as f:
+        json.dump(notes, f, ensure_ascii=False, indent=2)
+
