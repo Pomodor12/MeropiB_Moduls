@@ -11,7 +11,7 @@ dp = Router()
 event_cb = CallbackData("event", "action", "index")
 
 INPUT_GROUP = -5012773570  # Группа для записи мероприятий
-OUTPUT_GROUP = OUTPUT_EVENTS_ID  # Группа для просмотра и напоминаний
+OUTPUT_GROUP = -1003264984732  # Группа для просмотра и напоминаний
 
 @dp.message(Command("add_event"))
 async def add_event(message: types.Message):
