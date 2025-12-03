@@ -50,3 +50,8 @@ def check_urgent_events():
 # Планируем еженедельный отчёт по понедельникам в 09:00
 scheduler.add_job(weekly_report, "cron", day_of_week="mon", hour=9, minute=0)
 check_urgent_events()
+
+
+# Планируем еженедельный отчёт по понедельникам в 09:00
+scheduler.add_job(weekly_report, "cron", day_of_week="mon", hour=9, minute=0)
+check_urgent_events()
