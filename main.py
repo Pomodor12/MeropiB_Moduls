@@ -4,6 +4,7 @@ from patch_events import dp as dp_events
 from patch_notes import dp as dp_notes
 from patch_reminders import dp as dp_reminders, set_bot
 
+# Твой токен
 TOKEN = "7999077800:AAGAlfz6ho1xAP2spR8k_18rGy4CPdWRo3k"
 
 bot = Bot(token=TOKEN)
@@ -26,3 +27,4 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
+
