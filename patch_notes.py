@@ -1,7 +1,7 @@
 from aiogram import Router, types
 from aiogram.filters import Command
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
-from aiogram.utils.callback_data import CallbackData
+from aiogram.filters.callback_data import CallbackData
 from storage import load_notes, save_notes
 from patch_reminders import scheduler, OUTPUT_NOTES_ID
 from datetime import datetime
