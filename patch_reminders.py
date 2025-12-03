@@ -3,7 +3,9 @@ from datetime import datetime, timedelta
 from storage import load_events
 
 OUTPUT_EVENTS_ID = -1003264984732  # группа для мероприятий
+OUTPUT_NOTES_ID = -1003264984732   # группа для заметок (укажи нужный ID, например -1003264984732)
 bot_instance = None
+
 
 scheduler = AsyncIOScheduler()
 scheduler.start()
