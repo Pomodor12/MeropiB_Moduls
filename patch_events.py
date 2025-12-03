@@ -1,19 +1,18 @@
 from aiogram import Router, types
-from aiogram.filters.text import Text
+from aiogram.filters import Command
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from storage import load_events, save_events
 from patch_reminders import OUTPUT_EVENTS_ID, bot_instance
 
 dp = Router()
 
-# --- Отправка уведомления о мероприятии ---
 async def send_event_reminder(bot, event):
     text = f"📌 Напоминание о мероприятии:\n{event['title']} | {event['date']} {event['time']} | {event['people']} чел"
     if bot:
         await bot.send_message(OUTPUT_EVENTS_ID, text)
 
 # --- Добавление мероприятия ---
-@dp.message(Text(startswith="/add_event"))
+@dp.message(Command(commands=["add_event"]))
 async def add_event(message: types.Message):
     try:
         parts = message.text.split("|")
@@ -30,7 +29,7 @@ async def add_event(message: types.Message):
         await message.answer(f"❌ Ошибка: {e}")
 
 # --- Список мероприятий с кнопками для удаления ---
-@dp.message(Text(startswith="/list_events"))
+@dp.message(Command(commands=["list_events"]))
 async def list_events(message: types.Message):
     events = load_events()
     if not events:
@@ -54,4 +53,5 @@ async def delete_event_callback(callback: types.CallbackQuery):
         await callback.answer()
     except Exception as e:
         await callback.answer(f"Ошибка: {e}")
+
 
