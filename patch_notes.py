@@ -10,7 +10,7 @@ dp = Router()
 note_cb = CallbackData("note", "action", "index")
 
 INPUT_GROUP = -5012773570
-OUTPUT_GROUP = OUTPUT_NOTES_ID
+OUTPUT_GROUP = -1003264984732
 
 @dp.message(Command("note"))
 async def add_note(message: types.Message):
