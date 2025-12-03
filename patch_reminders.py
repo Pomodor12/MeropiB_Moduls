@@ -1,25 +1,19 @@
-from aiogram import Router
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from datetime import datetime, timedelta
-from storage import load_events, load_notes
-from patch_events import send_event_reminder
-from patch_notes import send_note_reminder
+from storage import load_events
+OUTPUT_EVENTS_ID = -1003264984732  # группа для мероприятий
+bot_instance = None
 
-dp = Router()
 scheduler = AsyncIOScheduler()
 scheduler.start()
-
-OUTPUT_EVENTS_ID = -1003264984732  # группа для мероприятий
-OUTPUT_NOTES_ID = -1003264984732   # группа для заметок
-
-bot_instance = None
 
 def set_bot(bot):
     global bot_instance
     bot_instance = bot
 
-# --- Еженедельный отчёт ---
+# Еженедельный отчёт
 def weekly_report():
+    from patch_events import send_event_reminder  # импорт внутри функции, чтобы избежать цикла
     now = datetime.now()
     week_end = now + timedelta(days=7)
     events = load_events()
@@ -36,8 +30,9 @@ def weekly_report():
         import asyncio
         asyncio.create_task(bot_instance.send_message(OUTPUT_EVENTS_ID, message))
 
-# --- Срочные уведомления (меньше 6 дней до события) ---
+# Срочные уведомления (менее 6 дней)
 def check_urgent_events():
+    from patch_events import send_event_reminder  # импорт внутри функции
     events = load_events()
     now = datetime.now()
     import asyncio
@@ -51,7 +46,3 @@ def check_urgent_events():
 scheduler.add_job(weekly_report, "cron", day_of_week="mon", hour=9, minute=0)
 check_urgent_events()
 
-
-# Планируем еженедельный отчёт по понедельникам в 09:00
-scheduler.add_job(weekly_report, "cron", day_of_week="mon", hour=9, minute=0)
-check_urgent_events()
