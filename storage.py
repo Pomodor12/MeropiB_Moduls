@@ -28,3 +28,4 @@ def save_notes(notes):
     with open(NOTES_FILE, "w", encoding="utf-8") as f:
         json.dump(notes, f, ensure_ascii=False, indent=2)
 
+
