@@ -4,6 +4,7 @@ from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from storage import load_notes, save_notes
 from patch_reminders import OUTPUT_NOTES_ID, bot_instance
 
+
 dp = Router()
 
 async def send_note_reminder(bot, note):
