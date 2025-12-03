@@ -1,5 +1,5 @@
 from aiogram import Router, types
-from aiogram.filters import Text
+from aiogram.filters.text import Text
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from storage import load_notes, save_notes
 from patch_reminders import OUTPUT_NOTES_ID, bot_instance
