@@ -1,62 +1,57 @@
 from aiogram import Router, types
-from aiogram.filters import Command
-from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
-from aiogram.filters.callback_data import CallbackData
+from aiogram.filters import Text
+from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from storage import load_events, save_events
-from patch_reminders import scheduler, OUTPUT_EVENTS_ID
+from patch_reminders import OUTPUT_EVENTS_ID, bot_instance
 
 dp = Router()
 
-# CallbackData для кнопок
-event_cb = CallbackData("event", "action", "index")
+# --- Отправка уведомления о мероприятии ---
+async def send_event_reminder(bot, event):
+    text = f"📌 Напоминание о мероприятии:\n{event['title']} | {event['date']} {event['time']} | {event['people']} чел"
+    if bot:
+        await bot.send_message(OUTPUT_EVENTS_ID, text)
 
-INPUT_GROUP = -5012773570  # Группа для записи мероприятий
-OUTPUT_GROUP = -1003264984732  # Группа для просмотра и напоминаний
-
-@dp.message(Command("add_event"))
+# --- Добавление мероприятия ---
+@dp.message(Text(startswith="/add_event"))
 async def add_event(message: types.Message):
-    """Добавление мероприятия форматом: /add_event Название | YYYY-MM-DD | HH:MM | Кол-во"""
     try:
-        text = message.text.split(" ", 1)[1]
-        title, date, time, people = map(str.strip, text.split("|"))
-        event = {"title": title, "date": date, "time": time, "people": people}
+        parts = message.text.split("|")
+        title = parts[0].replace("/add_event", "").strip()
+        date = parts[1].strip()
+        time = parts[2].strip()
+        people = int(parts[3].strip())
         events = load_events()
-        events.append(event)
+        event_id = len(events) + 1
+        events.append({"id": event_id, "title": title, "date": date, "time": time, "people": people})
         save_events(events)
-        await message.answer(f"Мероприятие '{title}' добавлено!")
-        # Планируем напоминание за день
-        from patch_reminders import schedule_event_reminder
-        schedule_event_reminder(event)
-    except Exception:
-        await message.answer("Ошибка формата! Используй: /add_event Название | YYYY-MM-DD | HH:MM | Кол-во")
+        await message.answer(f"✅ Мероприятие '{title}' добавлено с id {event_id}.")
+    except Exception as e:
+        await message.answer(f"❌ Ошибка: {e}")
 
-@dp.message(Command("list_events"))
+# --- Список мероприятий с кнопками для удаления ---
+@dp.message(Text(startswith="/list_events"))
 async def list_events(message: types.Message):
     events = load_events()
     if not events:
         await message.answer("Список мероприятий пуст.")
         return
-    for i, e in enumerate(events):
-        kb = InlineKeyboardMarkup()
-        kb.add(
-            InlineKeyboardButton("Удалить", callback_data=event_cb.new(action="delete", index=i)),
-            InlineKeyboardButton("Редактировать", callback_data=event_cb.new(action="edit", index=i))
-        )
-        await message.answer(
-            f"{i+1}. {e['title']} | {e['date']} {e['time']} | {e['people']} чел",
-            reply_markup=kb
-        )
+    for e in events:
+        kb = InlineKeyboardMarkup(inline_keyboard=[
+            [InlineKeyboardButton(text="Удалить", callback_data=f"del_event:{e['id']}")]
+        ])
+        await message.answer(f"{e['id']}. {e['title']} | {e['date']} {e['time']} | {e['people']} чел", reply_markup=kb)
 
-@dp.callback_query(event_cb.filter())
-async def callback_event(call: types.CallbackQuery, callback_data: dict):
-    index = int(callback_data["index"])
-    action = callback_data["action"]
-    events = load_events()
-    if action == "delete":
-        if 0 <= index < len(events):
-            removed = events.pop(index)
-            save_events(events)
-            await call.message.edit_text(f"Мероприятие '{removed['title']}' удалено!")
-        await call.answer()
-    elif action == "edit":
-        await call.answer("Редактирование пока не реализовано.")
+# --- Удаление через кнопки ---
+@dp.callback_query(lambda c: c.data and c.data.startswith("del_event"))
+async def delete_event_callback(callback: types.CallbackQuery):
+    try:
+        event_id = int(callback.data.split(":")[1])
+        events = load_events()
+        events = [e for e in events if e['id'] != event_id]
+        save_events(events)
+        await callback.message.edit_text(f"🗑 Мероприятие {event_id} удалено.")
+        await callback.answer()
+    except Exception as e:
+        await callback.answer(f"Ошибка: {e}")
+
