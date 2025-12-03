@@ -1,6 +1,7 @@
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from datetime import datetime, timedelta
 from storage import load_events
+
 OUTPUT_EVENTS_ID = -1003264984732  # группа для мероприятий
 bot_instance = None
 
@@ -13,7 +14,7 @@ def set_bot(bot):
 
 # Еженедельный отчёт
 def weekly_report():
-    from patch_events import send_event_reminder  # импорт внутри функции, чтобы избежать цикла
+    from patch_events import send_event_reminder  # импорт внутри функции
     now = datetime.now()
     week_end = now + timedelta(days=7)
     events = load_events()
@@ -44,5 +45,5 @@ def check_urgent_events():
 
 # Планируем еженедельный отчёт по понедельникам в 09:00
 scheduler.add_job(weekly_report, "cron", day_of_week="mon", hour=9, minute=0)
-check_urgent_events()
+
 
